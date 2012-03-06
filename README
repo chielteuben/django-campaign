@@ -3,7 +3,56 @@ A basic newsletter app for the Django webframework
 
 * Please see the documentation in the docs folder. 
 
-* You can reach the author of django-campaign at arne _at_ rcs4u.de.
 
-* Bug-reports can be filed at the google code project page: 
-  http://code.google.com/p/django-campaign/
+Quick install guide
+--------------------------------------------------
+
+1. Install django-campaign with ``pip``::
+
+    pip install git://github.com/chielteuben/django-campaign.git#egg=django-campaign
+    
+2. Add ``campaign`` to your ``INSTALLED_APPS`` setting::
+
+    INSTALLED_APPS = (
+        ...
+        'campaign',
+        ...
+    )
+    
+3. Add an entry to your URL-conf. Using ``campaign`` here is a matter of taste,
+   feel free to mount the app under a different URL::
+
+    urlpatterns += patterns('',
+        (r'^campaign/', include('campaign.urls'))
+    )
+    
+4. Then run ``manage.py syncdb`` to create the neccessary database tables.
+
+
+Example: Setting up a campaign for mailing the users
+existing in the Django auth_user table
+--------------------------------------------------
+
+1. Navigate to the Django admin interface / Campaign
+
+2. Add a subscriber list
+   Name: anything you want
+   Content type: user
+   Filter condition: {"is_active": true}
+   Email-Field name: email
+
+3. Add a mail template
+   Name: anything you want
+   Plaintext Body: anything you want (you can reference the 'recipient' object, which is the 'Content type' you chose at the subscriber list)
+   HTML Body: optional, same as above
+   Subject: the subject
+   Content type: optional, reference a different 'Content type'
+
+4. Add a campaign
+   Name: anything you want
+   Template: the template we created at step 3
+   Content Object: n/a
+   Available online: optional
+   Subscriber lists: the subscriber list you created at step 1
+
+5. After saving click on 'Send' at the top of the campaign you just created
