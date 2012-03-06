@@ -9,7 +9,7 @@ Quickstart
 
 1. Install django-campaign with ``pip``::
 
-    pip install git://github.com/chielteuben/django-campaign.git#egg=django-campaign
+    pip install -e git://github.com/chielteuben/django-campaign.git#egg=django-campaign
     
 2. Add ``campaign`` to your ``INSTALLED_APPS`` setting::
 
