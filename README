@@ -39,6 +39,7 @@ existing in the Django auth_user table
    Name: anything you want
    Content type: user
    Filter condition: {"is_active": true}
+   Exclude condition: {"is_staff": true}
    Email-Field name: email
 
 3. Add a mail template
