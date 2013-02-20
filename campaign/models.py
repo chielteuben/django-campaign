@@ -27,7 +27,6 @@ class MailTemplate(models.Model):
     
     def __unicode__(self):
         return self.name
-    
 
 
 class SubscriberList(models.Model):
@@ -38,6 +37,7 @@ class SubscriberList(models.Model):
     name = models.CharField(_(u"Name"), max_length=255)
     content_type = models.ForeignKey(ContentType)
     filter_condition = JSONField(default="{}", help_text=_(u"Django ORM compatible lookup kwargs which are used to get the list of objects."))
+    exclude_condition = JSONField(default="{}", blank=True, null=True, help_text=_(u"Django ORM compatible exclude kwargs which are used to exclude objects from the list."))
     email_field_name = models.CharField(_(u"Email-Field name"), max_length=64, help_text=_(u"Name of the model field which stores the recipients email address"))
     
     def __unicode__(self):
@@ -50,14 +50,26 @@ class SubscriberList(models.Model):
         for k,v in self.filter_condition.iteritems():
             fc.update({str(k): v})
         return fc
+
+    def _get_exclude(self):
+        # simplejson likes to put unicode objects as dictionary keys
+        # but keyword arguments must be str type
+        ec = {}
+        for k,v in self.exclude_condition.iteritems():
+            ec.update({str(k): v})
+        return ec
         
     def object_list(self):
-        return self.content_type.model_class()._default_manager.filter(**self._get_filter())
+        if self.exclude_condition:
+            return self.content_type.model_class()._default_manager.filter(**self._get_filter()).exclude(**self._get_exclude())
+        else:
+            return self.content_type.model_class()._default_manager.filter(**self._get_filter())
         
     def object_count(self):
-        return self.content_type.model_class()._default_manager.filter(**self._get_filter()).count()
-            
-            
+        if self.exclude_condition:
+            return self.content_type.model_class()._default_manager.filter(**self._get_filter()).exclude(**self._get_exclude()).count()
+        else:
+            return self.content_type.model_class()._default_manager.filter(**self._get_filter()).count()
 
         
 class Campaign(models.Model):
@@ -120,8 +132,6 @@ class Campaign(models.Model):
         return sent
 
 
-
-
 class BlacklistEntry(models.Model):
     """
     If a user has requested removal from the subscriber-list, he is added
@@ -138,5 +148,3 @@ class BounceEntry(models.Model):
     """
     email = models.CharField(_(u"recipient"), max_length=255, blank=True, null=True)
     exception = models.TextField(_(u"exception"), blank=True, null=True)
-    
-    
